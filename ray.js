@@ -6,7 +6,7 @@ class Ray {
      */
     constructor(origin, dir) {
         this.origin = origin;
-        this.dir = dir.normalize();
+        this.dir = dir.clone();
     }
 }
 
@@ -25,14 +25,8 @@ class HitInfo {
     constructor(ray, hasHit=false, hitPoint=null, hitNormal=null) {
         this.ray = ray;
         this.hasHit = hasHit;
-
-        if (hasHit) {
-            this.hitPoint = hitPoint;
-            this.hitNormal = hitNormal;
-        } else {
-            this.hitPoint = null;
-            this.hitNormal = null;
-        }
+        this.hitPoint = hitPoint;
+        this.hitNormal = hitNormal;
     }
     get distance() {
         if (this.hitPoint===null) return null;

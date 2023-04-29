@@ -15,10 +15,16 @@ class CameraTransform {
         this.forwards  = dir;
         this.up        = up;
         // this.backwards = dir.scale(-1);
-        this.right     = up.clone();
-        this.right.rotate(90,dir);  
+        this.right=this.forwards.cross(this.up);
         // this.left      = dir.rotateY(-90);
         // this.down      = dir.rotateX(-90);
+    }
+
+    update() {
+        this.right=this.forwards.cross(this.up);
+        this.forwards.normalizeS();
+        this.up.normalizeS();
+        this.right.normalizeS();
     }
 
     /**

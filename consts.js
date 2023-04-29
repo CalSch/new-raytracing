@@ -6,9 +6,9 @@ const vec1=new Vec3(1,1,1);
 
 const emptyHitInfo = new HitInfo();
 
-let RAY_BOUNCE_LIMIT=5;
-const MAX_SAMPLES=20;
-
+let RAY_BOUNCE_LIMIT=6;
+let MAX_SAMPLES=20;
+let RAYS_PER_PIXEL=1;
 
 let previewPixSkip=5;
 let temp=new Vec3(0,0,0);

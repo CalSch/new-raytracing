@@ -41,14 +41,18 @@ class Camera {
      * @param {number} y 
      */
     getPixelDir(x,y) {
-        if (`${x},${y}` in this.cache) {
-            return this.cache[`${x},${y}`]
-        }
+        // if (`${x},${y}` in this.cache) {
+        //     return this.cache[`${x},${y}`]
+        // }
+
         let tx = x / (this.resX); // 0 = left edge of plane, 1 = right edge
         let ty = y / (this.resY); // 0 = top edge of plane, 1 = bottom edge
     
-        this.topLeftLocal.copyTo(this._pointLocal);
-        this._pointLocal.addS(new Vec3(this.planeWidth * tx, this.planeHeight * ty - this.planeHeight, 0));
+        // this.topLeftLocal.copyTo(this._pointLocal);
+        // this._pointLocal.addS(new Vec3(this.planeWidth * tx, this.planeHeight * ty - this.planeHeight, 0));
+        this._pointLocal.x = this.topLeftLocal.x + this.planeWidth * tx;
+        this._pointLocal.y = this.topLeftLocal.y + this.planeHeight * ty - this.planeHeight;
+        this._pointLocal.z = this.topLeftLocal.z;
         
         // let point = 
         //     this.transform.right // this is usually transform.left
@@ -71,8 +75,26 @@ class Camera {
 
         point.normalizeS();
 
-        this.cache[`${x},${y}`]=point;
+        // this.cache[`${x},${y}`]=point;
         
         return point;
+    }
+
+    saveCam() {
+        return `${this.fov} | ${this.transform.pos.toString()} | ${this.transform.forwards.toString()} | ${this.transform.up.toString()}`;
+    }
+
+    /**
+     * @param {string} s 
+     */
+    loadCam(s) {
+        let fields=s.split(" | ");
+        this.fov = parseFloat(fields[0]);
+        this.transform.pos      = Vec3.fromString(fields[1]);
+
+        this.transform.forwards = Vec3.fromString(fields[2]);
+        this.transform.up       = Vec3.fromString(fields[3]);
+        
+        this.transform.update();
     }
 }

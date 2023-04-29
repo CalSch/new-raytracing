@@ -2,8 +2,8 @@
 let canvas=document.getElementById("screen");
 let ctx=canvas.getContext('2d');
 
-let screenWidth =600;
-let screenHeight=400;
+let screenWidth =800;
+let screenHeight=500;
 let forwards = new Vec3(0,0,1).normalize();
 let up       = new Vec3(0,-1,0).normalize();
 let cam=new Camera(
@@ -95,6 +95,11 @@ function draw() {
     ctx.putImageData(imgData,0,0);
 
 
+    ctx.font="20px monospace";
+    ctx.fillStyle="red";
+    ctx.fillText('Preview',10,30);
+
+
     // updateData({
     //     cam,
     // })
@@ -108,7 +113,7 @@ function draw() {
     for (let t of times) {
         avg+=t/times.length;
     }
-    debugLog(`Average ${avg.toFixed(2)}ms, ${(1000/avg).toFixed(2)}fps`)
+    debugLog(`Average ${avg.toFixed(2)}ms, ${(1000/avg).toFixed(2)}fps`);
     times.push(end-start);
 
     startSampleTimeout=setTimeout(()=>{
@@ -131,9 +136,14 @@ function draw() {
                         imgData.data[ i + 1 ],
                         imgData.data[ i + 2 ],
                     );
-                    let color=getPixelColor(x,y);
+                    let avgColor=new Vec3(0,0,0);
+                    for (let i=0;i<RAYS_PER_PIXEL;i++) {
+                        let color=getPixelColor(x,y);
+                        color.scaleS(1/RAYS_PER_PIXEL);
+                        avgColor.addS(color);
+                    }
     
-                    let newColor = lerpVec(prevColor,color,weight);
+                    let newColor = clampVec(0,255,lerpVec(prevColor,avgColor,weight));
     
                     imgData.data[ i + 0 ]=newColor.x;
                     imgData.data[ i + 1 ]=newColor.y;
@@ -144,11 +154,20 @@ function draw() {
         
             ctx.putImageData(imgData,0,0);
 
+            ctx.font="10px monospace";
+            ctx.fillStyle="red";
+            ctx.fillText(`${frame}/${MAX_SAMPLES}`,5,15);
+
             frame++;
-        });
+        },16);
     },1000);
 }
 
-draw();
+// draw();
 
 // setInterval(draw,1000/60)
+
+ctx.font="50px monospace";
+ctx.fillStyle="black";
+ctx.fillText('Press the draw  ',60,190);
+ctx.fillText('button to start!',60,240);

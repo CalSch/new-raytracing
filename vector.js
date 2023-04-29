@@ -250,6 +250,19 @@ class Vec3 {
 		this.z = q.k;
 	}
 
+    /**
+     * Reflect this vector on a normal
+     * @param {Vec3} norm 
+     */
+    reflect(norm) {
+        norm.copyTo(temp);
+        temp.normalizeS();
+        let p=new Vec3(this.x,this.y,this.z);
+
+        p.subS(temp.scale(2 * this.dot(temp)));
+        return p;
+    }
+
     //#endregion
 
     //#region self math
@@ -343,19 +356,48 @@ class Vec3 {
         this.z += ( v.z * s);
     }
 
-    //#endregion
-
     /**
      * Reflect this vector on a normal
      * @param {Vec3} norm 
      */
-    reflect(norm) {
+    reflectS(norm) {
         norm.copyTo(temp);
         temp.normalizeS();
         let p=new Vec3(this.x,this.y,this.z);
 
-        p.subS(temp.scale(2 * this.dot(temp)));
-        return p;
+        temp.scaleS(2 * this.dot(temp));
+        p.subS(temp);
+        p.copyTo(this);
+    }
+
+    //#endregion
+
+    toString() {
+        return `${this.x.toFixed(2)}, ${this.y.toFixed(2)}, ${this.z.toFixed(2)}`
+    }
+    /**
+     * @param {string} s 
+     * @returns {Vec3}
+     */
+    static fromString(s) {
+        let nums=s.split(", ");
+        return new Vec3(
+            parseFloat(nums[0]),
+            parseFloat(nums[1]),
+            parseFloat(nums[2]),
+        )
     }
 }
 
+/**
+ * @param {number} min
+ * @param {number} max
+ * @param {Vec3} vec
+ */
+function clampVec(min,max,vec) {
+    return new Vec3(
+        Math.min(Math.max(vec.x,min),max),
+        Math.min(Math.max(vec.y,min),max),
+        Math.min(Math.max(vec.z,min),max)
+    )
+}

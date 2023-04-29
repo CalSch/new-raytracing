@@ -30,6 +30,9 @@ canvas.onclick=(ev)=>{
         targetShapeIndex=-1;
     }
 
+    debugLog(`${ev.offsetX},${ev.offsetY}`);
+    debugLog(`${getPixelColor(ev.offsetX,ev.offsetY)}  <span class="color" style="background-color: ${rgbToHex(getPixelColor(ev.offsetX,ev.offsetY))}"></span>`);
+
     // updateEditor();
 }
 
@@ -56,3 +59,5 @@ colorEl.onchange=emissionColorEl.onchange=emissionStrengthEl.onchange=(ev)=>{
     scene[targetShapeIndex].mat.emissionColor=hexToRgb(emissionColorEl.value);
     scene[targetShapeIndex].mat.emissionStrength=parseFloat(emissionStrengthEl.value);
 }
+
+

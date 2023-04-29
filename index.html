@@ -15,6 +15,29 @@
             padding: 5px;
             font-family: 'Courier New', Courier, monospace;
         }
+
+        .color {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 1px solid black;
+        }
+
+        button {
+            background-color: lightgrey;
+            border: 0.5px solid dimgrey;
+            border-radius: 5px;
+            padding: 7px;
+            margin: 2px;
+            font-size: 12pt;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: rgb(185, 185, 185);
+        }
+        button:active {
+            background-color: rgb(149, 147, 153);
+        }
     </style>
 </head>
 <body>
@@ -22,17 +45,22 @@
     <canvas tabindex="1" id="screen"></canvas>
     <canvas id="debug-screen"></canvas>
     <hr>
-    <div id="editor">
-        <h3>Material editor</h3>
+    <details id="editor">
+        <summary>Material editor (WIP)</summary>
         <p id="noTarget">No target is selected</p>
         <input type="color" name="color" id="matColor">
         <br>
         <input type="color" name="emission color" id="matEmissionColor">
         <br>
         <input type="range" name="emission strength" id="matEmissionStrength" min="0" max="5" step="0.01">
-    </div>
+    </details>
     <hr>
     <button onclick="draw()">draw</button>
+    <button onclick="alert('data: '+cam.saveCam())">save camera data</button>
+    <button onclick="cam.loadCam(prompt('data:').trim());draw()">load camera data</button>
+    <br>
+    <button onclick="cam.fov+=10;draw()">fov+</button>
+    <button onclick="cam.fov-=10;draw()">fov-</button>
 
     <pre id="debug"></pre>
 

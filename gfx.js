@@ -7,7 +7,7 @@ let colors={
     sky2:   new Vec3( 107, 93,  179 ).scale(1/255),
     // sky:    new Vec3( 255, 255, 255 ).scale(1/255),
     black:  new Vec3( 0,   0,   0   ).scale(1/255),
-    sun:    new Vec3( 255, 255, 200 ).scale(1/155),
+    sun:    new Vec3( 255, 130, 180 ).scale(1/155),
     green:  new Vec3( 55,  204, 122 ).scale(1/155),
 }
 
@@ -56,13 +56,13 @@ let scene = [
     new Sphere(
         "sun",
         new Vec3(0, 0, 500),
-        150,
+        120,
         new Material(
             (hit)=>{
                 return vec0;
             },
             vec1,0,0,
-            colors.sun,30,
+            colors.sun,18,
         )
     ),
 
@@ -72,14 +72,14 @@ let scene = [
  * @param {Ray} ray 
  */
 function getSkyColor(ray) {
-    lerpVecCopy(temp,colors.sky,colors.sky2,ray.dir.y);
-    return temp;
+    // lerpVecCopy(temp,colors.sky,colors.sky2,ray.dir.y);
+    return lerpVec(colors.sky,colors.sky2,ray.dir.y);
 }
 
 let skyMat=new Material(
     (_)=>{return vec0},
     vec0,0,0,
-    colors.sky,0.7
+    colors.sky,0.4
 )
 
 class CastInfo {
@@ -131,6 +131,9 @@ function Trace(ray) {
     let rayColor = new Vec3(1,1,1);
     let incomingLight = new Vec3(0,0,0);
 
+    let diffuseDir=new Vec3(0,0,0);
+    let specularDir=new Vec3(0,0,0);
+
     for (let i=0;i<RAY_BOUNCE_LIMIT;i++) {
         let cast = castRay(ray);
 
@@ -138,10 +141,18 @@ function Trace(ray) {
             let mat=cast.obj.mat;
 
             ray.origin=cast.hit.hitPoint;
-            let diffuseDir = cast.hit.hitNormal.add(randomDirection());
-            let specularDir = ray.dir.reflect(cast.hit.hitNormal);
+
+            // let diffuseDir = cast.hit.hitNormal.add(randomDirection());
+            cast.hit.hitNormal.copyTo(diffuseDir);
+            diffuseDir.addS(randomDirection());
+
+            // specularDir = ray.dir.reflect(cast.hit.hitNormal);
+            ray.dir.copyTo(specularDir);
+            specularDir.reflectS(cast.hit.hitNormal);
+
             let isSpecularBounce = Math.random() <= mat.specularProbability;
-            ray.dir = lerpVec(diffuseDir,specularDir, mat.smoothness * isSpecularBounce);
+            // ray.dir = lerpVec(diffuseDir,specularDir, mat.smoothness * isSpecularBounce);
+            lerpVecCopy(ray.dir, diffuseDir,specularDir, mat.smoothness * isSpecularBounce);
             ray.dir.normalizeS();
 
             let emittedLight = mat.emissionColor.scale(mat.emissionStrength);
@@ -149,8 +160,10 @@ function Trace(ray) {
             
             rayColor.mulS( lerpVec( mat.color(cast.hit), mat.specularColor, isSpecularBounce ));
         } else {
-            let emittedLight = getSkyColor(ray).scale(skyMat.emissionStrength);
-            incomingLight.addS(emittedLight.mul(rayColor));
+            let emittedLight = getSkyColor(ray)
+            emittedLight.scaleS(skyMat.emissionStrength);
+            emittedLight.mulS(rayColor);
+            incomingLight.addS(emittedLight);
             // rayColor.mulS(skyMat.color(cast.hit));
             break;
         }

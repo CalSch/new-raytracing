@@ -20,7 +20,7 @@ function debugClear() {
 }
 
 function debugLog(t) {
-    debugEl.innerText+=t+"\n";
+    debugEl.innerHTML+=t+"\n";
 }
 
 /** @type {HTMLCanvasElement} */
@@ -162,8 +162,8 @@ function drawTransform(t) {
 function drawDebug() {
     dbg.clearRect(0,0,debugCanvas.width,debugCanvas.height);
 
-    // drawDebugPixels();
-    // drawTransform(cam.transform);
+    drawDebugPixels();
+    drawTransform(cam.transform);
     
     drawDebugPoint(vec0,"rgba(0,0,0,0.3)",3);
 
