@@ -56,6 +56,8 @@
     </details>
     <hr>
     <button onclick="draw()">draw</button>
+    <button onclick="clearInterval(sampleInterval)">STOP!!</button>
+    <br>
     <button onclick="alert('data: '+cam.saveCam())">save camera data</button>
     <button onclick="cam.loadCam(prompt('data:').trim());draw()">load camera data</button>
     <br>

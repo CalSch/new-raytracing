@@ -125,7 +125,7 @@ function draw() {
             if (!(frame%5))
             console.log(`sample #${frame}`)
 
-            let weight = 1/(frame+1);
+            let weight = Math.min(1/(frame+0),1);
 
             for (let y=0;y<screenHeight;y++) {
                 for (let x=0;x<screenWidth;x++) {
@@ -156,7 +156,7 @@ function draw() {
 
             ctx.font="10px monospace";
             ctx.fillStyle="red";
-            ctx.fillText(`${frame}/${MAX_SAMPLES}`,5,15);
+            ctx.fillText(`${frame+1}/${MAX_SAMPLES}`,5,15);
 
             frame++;
         },16);
