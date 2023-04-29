@@ -1,0 +1,17 @@
+{
+    "files": [
+        "index.js",
+        "vector.js",
+        "camera.js",
+        "transform.js",
+        "objects.js",
+        "ray.js",
+        "gfx.js",
+        "consts.js",
+        "math.js",
+        "material.js",
+        "debug.js",
+        "mouse.js",
+        "editor.js",
+    ]
+}
