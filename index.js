@@ -171,3 +171,12 @@ ctx.font="50px monospace";
 ctx.fillStyle="black";
 ctx.fillText('Press the draw  ',60,190);
 ctx.fillText('button to start!',60,240);
+
+
+
+document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+        clearInterval(sampleInterval);
+        clearTimeout(startSampleTimeout);
+    }
+});
