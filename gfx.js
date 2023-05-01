@@ -38,7 +38,7 @@ let scene = [
     ),
     new Sphere(
         "ball3",
-        new Vec3(5.5, -0.3, 10),
+        new Vec3(0.5, -0.3, 8),
         1.2,
         new Material(
             (hit)=>{
@@ -141,6 +141,7 @@ function castRay(ray) {
 function Trace(ray) {
     let rayColor = new Vec3(1,1,1);
     let incomingLight = new Vec3(0,0,0);
+    let distance=0;
 
     let diffuseDir=new Vec3(0,0,0);
     let specularDir=new Vec3(0,0,0);
@@ -149,6 +150,7 @@ function Trace(ray) {
         let cast = castRay(ray);
 
         if (cast.hit.hasHit) {
+            distance+=cast.hit.distance;
             let mat=cast.obj.mat;
 
             ray.origin=cast.hit.hitPoint;
@@ -187,6 +189,7 @@ function Trace(ray) {
         }
     }
 
+    // return new Vec3(distance/100,0,0);
     return incomingLight;
 }
 
@@ -199,8 +202,13 @@ function Trace(ray) {
 function getPixelColor(x,y) {
     let ray = new Ray(
         cam.transform.pos,
-        cam.getPixelDir(x,y)
+        cam.getPixelDir(
+            x+Math.random(),
+            y+Math.random()
+        )
     );
+    let cast = castRay(ray);
+    // return new Vec3(cast.hit.distance*5)
     return Trace(ray).scale(255);
     // return randomDirection().add(new Vec3(0.5,0.5,0.5)).scale(255);
 }
