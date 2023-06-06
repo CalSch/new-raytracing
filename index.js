@@ -17,12 +17,15 @@ let cam=new Camera(
     )
 ); // Camera at (0,0,0) facing positive Z (forwards) and down
 
+cam.loadCam("50 | -2.93, 5.26, 7.89 | 0.63, -0.75, 0.20 | -0.70, -0.65, -0.29");
+
 // cam.transform.rotate(10,cam.transform.right);
 
 let imgData=ctx.createImageData(screenWidth,screenHeight);
 let frame=0;
 let sampleInterval=-1;
 let startSampleTimeout=-1;
+let drawTimeout=-1;
 
 canvas.width=screenWidth;
 canvas.height=screenHeight;
@@ -70,97 +73,101 @@ canvas.onkeydown=(ev)=>{
 // }
 
 function draw() {
+    clearTimeout(drawTimeout);
     debugClear();
+
     frame = 0;
     clearInterval(sampleInterval);
     clearTimeout(startSampleTimeout);
     cam.cache=[];
     let start=Date.now();
     let lastColor=vec0.clone();
-    for (let y=0;y<screenHeight;y++) {
-        for (let x=0;x<screenWidth;x++) {
-            let i=( y * screenWidth + x ) * 4;
-
-            // Every other pixel is skipped
-            let color= (( y * screenWidth + x ) % previewPixSkip > 0)  ?  lastColor : getPixelColor(x,y);
-
-            imgData.data[ i + 0 ]=color.x;
-            imgData.data[ i + 1 ]=color.y;
-            imgData.data[ i + 2 ]=color.z;
-            imgData.data[ i + 3 ]=255;
-
-            lastColor=color;
+    drawTimeout=setTimeout(()=>{
+        for (let y=0;y<screenHeight;y++) {
+            for (let x=0;x<screenWidth;x++) {
+                let i=( y * screenWidth + x ) * 4;
+    
+                // Every other pixel is skipped
+                let color= (( y * screenWidth + x ) % previewPixSkip > 0)  ?  lastColor : getPixelColor(x,y);
+    
+                imgData.data[ i + 0 ]=color.x;
+                imgData.data[ i + 1 ]=color.y;
+                imgData.data[ i + 2 ]=color.z;
+                imgData.data[ i + 3 ]=255;
+    
+                lastColor=color;
+            }
         }
-    }
-    ctx.putImageData(imgData,0,0);
-
-
-    ctx.font="20px monospace";
-    ctx.fillStyle="red";
-    ctx.fillText('Preview',10,30);
-
-
-    // updateData({
-    //     cam,
-    // })
-
-    drawDebug();
-
-    let end=Date.now();
-
-    debugLog(`Took ${end-start}ms, ${(1000/(end-start)).toFixed(2)}fps`)
-    let avg=0;
-    for (let t of times) {
-        avg+=t/times.length;
-    }
-    debugLog(`Average ${avg.toFixed(2)}ms, ${(1000/avg).toFixed(2)}fps`);
-    times.push(end-start);
-
-    startSampleTimeout=setTimeout(()=>{
-        sampleInterval=setInterval(()=>{
-            if (frame+1 >= MAX_SAMPLES) {
-                clearInterval(sampleInterval);
-                console.log("stop sampling")
-            }
-            if (!(frame%5))
-            console.log(`sample #${frame}`)
-
-            let weight = Math.min(1/(frame+0),1);
-
-            for (let y=0;y<screenHeight;y++) {
-                for (let x=0;x<screenWidth;x++) {
-                    let i=( y * screenWidth + x ) * 4;
+        ctx.putImageData(imgData,0,0);
     
-                    let prevColor=new Vec3(
-                        imgData.data[ i + 0 ],
-                        imgData.data[ i + 1 ],
-                        imgData.data[ i + 2 ],
-                    );
-                    let avgColor=new Vec3(0,0,0);
-                    for (let i=0;i<RAYS_PER_PIXEL;i++) {
-                        let color=getPixelColor(x,y);
-                        color.scaleS(1/RAYS_PER_PIXEL);
-                        avgColor.addS(color);
-                    }
     
-                    let newColor = clampVec(0,255,lerpVec(prevColor,avgColor,weight));
+        ctx.font="20px monospace";
+        ctx.fillStyle="red";
+        ctx.fillText('Preview',10,30);
     
-                    imgData.data[ i + 0 ]=newColor.x;
-                    imgData.data[ i + 1 ]=newColor.y;
-                    imgData.data[ i + 2 ]=newColor.z;
-                    imgData.data[ i + 3 ]=255;
+    
+        // updateData({
+        //     cam,
+        // })
+    
+        drawDebug();
+    
+        let end=Date.now();
+    
+        debugLog(`Took ${end-start}ms, ${(1000/(end-start)).toFixed(2)}fps`)
+        let avg=0;
+        for (let t of times) {
+            avg+=t/times.length;
+        }
+        debugLog(`Average ${avg.toFixed(2)}ms, ${(1000/avg).toFixed(2)}fps`);
+        times.push(end-start);
+    
+        startSampleTimeout=setTimeout(()=>{
+            sampleInterval=setInterval(()=>{
+                if (frame+1 >= MAX_SAMPLES) {
+                    clearInterval(sampleInterval);
+                    console.log("stop sampling")
                 }
-            }
+                if (!(frame%5))
+                console.log(`sample #${frame}`)
+    
+                let weight = Math.min(1/(frame+0),1);
+    
+                for (let y=0;y<screenHeight;y++) {
+                    for (let x=0;x<screenWidth;x++) {
+                        let i=( y * screenWidth + x ) * 4;
         
-            ctx.putImageData(imgData,0,0);
-
-            ctx.font="10px monospace";
-            ctx.fillStyle="red";
-            ctx.fillText(`${frame+1}/${MAX_SAMPLES}`,5,15);
-
-            frame++;
-        },16);
-    },1000);
+                        let prevColor=new Vec3(
+                            imgData.data[ i + 0 ],
+                            imgData.data[ i + 1 ],
+                            imgData.data[ i + 2 ],
+                        );
+                        let avgColor=new Vec3(0,0,0);
+                        for (let i=0;i<RAYS_PER_PIXEL;i++) {
+                            let color=getPixelColor(x,y);
+                            color.scaleS(1/RAYS_PER_PIXEL);
+                            avgColor.addS(color);
+                        }
+        
+                        let newColor = clampVec(0,255,lerpVec(prevColor,avgColor,weight));
+        
+                        imgData.data[ i + 0 ]=newColor.x;
+                        imgData.data[ i + 1 ]=newColor.y;
+                        imgData.data[ i + 2 ]=newColor.z;
+                        imgData.data[ i + 3 ]=255;
+                    }
+                }
+            
+                ctx.putImageData(imgData,0,0);
+    
+                ctx.font="10px monospace";
+                ctx.fillStyle="red";
+                ctx.fillText(`${frame+1}/${MAX_SAMPLES}`,5,15);
+    
+                frame++;
+            },16);
+        },1000);
+    },100);
 }
 
 // draw();

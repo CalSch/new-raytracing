@@ -10,5 +10,8 @@ let RAY_BOUNCE_LIMIT=5;
 let MAX_SAMPLES=2000;
 let RAYS_PER_PIXEL=8;
 
-let previewPixSkip=5;
+let previewPixSkip=2;
 let temp=new Vec3(0,0,0);
+
+let chunkWidth=20;
+let chunkHeight=20;

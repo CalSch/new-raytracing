@@ -25,7 +25,7 @@ canvas.onclick=(ev)=>{
     let ray=new Ray(cam.transform.pos,cam.getPixelDir(x,y));
     let cast=castRay(ray);
     if (cast.hit.hasHit) {
-        targetShapeIndex=scene.indexOf(cast.obj);
+        targetShapeIndex=scene.objects.indexOf(cast.obj);
     } else {
         targetShapeIndex=-1;
     }
@@ -42,6 +42,12 @@ let emissionColorEl=document.getElementById('matEmissionColor');
 let emissionStrengthEl=document.getElementById('matEmissionStrength');
 let noTargetEl=document.getElementById('noTarget');
 
+/**
+ * @type {Object.<string, HTMLInputElement>}
+ */
+let updateVars={};
+
+
 function updateEditor() {
     if (targetShapeIndex==-1) {
         noTargetEl.hidden=false;
@@ -52,12 +58,16 @@ function updateEditor() {
         emissionColorEl.value    = rgbToHex(target.mat.emissionColor);
         emissionStrengthEl.value = target.mat.emissionStrength;
     }
+
+    for (let v of updateVars) {
+        
+    }
 }
 
-colorEl.onchange=emissionColorEl.onchange=emissionStrengthEl.onchange=(ev)=>{
-    // scene[targetShapeIndex].mat.color=hexToRgb(colorEl.value);
-    scene[targetShapeIndex].mat.emissionColor=hexToRgb(emissionColorEl.value);
-    scene[targetShapeIndex].mat.emissionStrength=parseFloat(emissionStrengthEl.value);
-}
+// colorEl.onchange=emissionColorEl.onchange=emissionStrengthEl.onchange=(ev)=>{
+//     scene[targetShapeIndex].mat.color=hexToRgb(colorEl.value);
+//     scene[targetShapeIndex].mat.emissionColor=hexToRgb(emissionColorEl.value);
+//     scene[targetShapeIndex].mat.emissionStrength=parseFloat(emissionStrengthEl.value);
+// }
 
 

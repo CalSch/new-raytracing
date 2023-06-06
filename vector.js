@@ -401,3 +401,11 @@ function clampVec(min,max,vec) {
         Math.min(Math.max(vec.z,min),max)
     )
 }
+
+function vecFunc(a,b,func) {
+    return new Vec3(
+        func(a.x,b.x),
+        func(a.y,b.y),
+        func(a.z,b.z)
+    );
+}

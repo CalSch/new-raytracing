@@ -1,36 +1,38 @@
-let colors={
-    blue:   new Vec3( 83,  157, 230 ).scale(1/255),
-    orange: new Vec3( 230, 157, 83  ).scale(1/255),
-    purple: new Vec3( 117, 83,  230 ).scale(1/255),
-    red:    new Vec3( 245, 56,  113 ).scale(1/255),
-    sky:    new Vec3( 184, 190, 255 ).scale(1/255),
-    sky2:   new Vec3( 107, 93,  179 ).scale(1/255),
+let colors = {
+    blue: new Vec3(83, 157, 230).scale(1 / 255),
+    orange: new Vec3(230, 157, 83).scale(1 / 255),
+    purple: new Vec3(117, 83, 230).scale(1 / 255),
+    red: new Vec3(245, 56, 113).scale(1 / 255),
+    sky: new Vec3(184, 190, 255).scale(1 / 255),
+    sky2: new Vec3(107, 93, 179).scale(1 / 255),
+    // sky2: new Vec3(235, 113, 52).scale(1 / 255),
+    // sky: new Vec3(185, 41, 217).scale(1 / 255),
     // sky:    new Vec3( 255, 255, 255 ).scale(1/255),
-    black:  new Vec3( 0,   0,   0   ).scale(1/255),
-    sun:    new Vec3( 255, 180, 130 ).scale(1/155),
-    green:  new Vec3( 55,  204, 122 ).scale(1/155),
-    white:  new Vec3( 250, 250, 255 ).scale(1/155),
+    black: new Vec3(0, 0, 0).scale(1 / 255),
+    sun: new Vec3(255, 180, 130).scale(1 / 155),
+    green: new Vec3(55, 204, 122).scale(1 / 155),
+    white: new Vec3(250, 250, 255).scale(1 / 155),
 }
 
-/** @type {SceneObject[]} */
-let scene = [
+/** @type {Scene} */
+let scene = new Scene([
     new Sphere(
         "ball1",
         new Vec3(0, 0, 10),
         1,
         new Material(
-            (hit)=>{
+            (hit) => {
                 return colors.white;
             },
-            new Vec3(0.9,0.9,0.9),0.95,1,
+            new Vec3(0.9, 0.9, 0.9), 0.98, 1,
         )
     ),
     new Sphere(
         "ball2",
-        new Vec3(2.5, 0.5, 10),
+        new Vec3(3.3, 0.5, 9.5),
         1.5,
         new Material(
-            (hit)=>{
+            (hit) => {
                 return colors.green;
             },
             // colors.blue,1,0.7,
@@ -38,12 +40,13 @@ let scene = [
     ),
     new Sphere(
         "ball3",
-        new Vec3(0.5, -0.3, 8),
+        new Vec3(1, -0.2, 7),
         1.2,
         new Material(
-            (hit)=>{
-                return colors.orange;
+            (hit) => {
+                return colors.blue;
             },
+            colors.white, 0.98, 0.1,
         )
     ),
     new Sphere(
@@ -51,16 +54,16 @@ let scene = [
         new Vec3(0, -201, 0),
         200,
         new Material(
-            (hit)=>{
-                let scale=200;
-                let x=Math.floor(hit.hitNormal.x*scale);
-                let y=Math.floor(hit.hitNormal.z*scale);
-                if (x%2==0 ^ y%2==0)
+            (hit) => {
+                let scale = 200;
+                let x = Math.floor(hit.hitNormal.x * scale);
+                let y = Math.floor(hit.hitNormal.z * scale);
+                if (x % 2 == 0 ^ y % 2 == 0)
                     return colors.purple
                 else
                     return colors.red;
             },
-            colors.purple,0.5,0.3
+            colors.purple, 0.5, 0.3
         )
     ),
 
@@ -69,29 +72,17 @@ let scene = [
         new Vec3(-5, 25, 5),
         10,
         new Material(
-            (hit)=>{
+            (hit) => {
                 return vec0;
             },
-            vec1,0,0,
-            colors.sun,3,
+            vec1, 0, 0,
+            colors.sun, 3,
         )
     ),
 
-];
-
-/**
- * @param {Ray} ray 
- */
-function getSkyColor(ray) {
-    // lerpVecCopy(temp,colors.sky,colors.sky2,ray.dir.y);
-    return lerpVec(colors.sky,colors.sky2,ray.dir.y);
-}
-
-let skyMat=new Material(
-    (_)=>{return vec0},
-    vec0,0,0,
-    colors.sky,0.5
-)
+], new Material((ray) => {
+    return lerpVec(colors.sky, colors.sky2, ray.dir.y);
+}, 0, 0, 0, colors.black, 0.5));
 
 class CastInfo {
     /**
@@ -100,10 +91,10 @@ class CastInfo {
      * @param {SceneObject} obj 
      * @param {HitInfo} hit 
      */
-    constructor(ray,obj,hit) {
-        this.ray=ray;
-        this.obj=obj;
-        this.hit=hit;
+    constructor(ray, obj, hit) {
+        this.ray = ray;
+        this.obj = obj;
+        this.hit = hit;
     }
 }
 
@@ -120,7 +111,7 @@ function castRay(ray) {
     /** @type {HitInfo} */
     let closestHit = new HitInfo();
 
-    for (let shape of scene) {
+    for (let shape of scene.objects) {
         let hit = shape.intersect(ray);
         if (!hit.hasHit) continue;
         if (closestDistance === null || closestDistance > hit.distance) {
@@ -130,7 +121,7 @@ function castRay(ray) {
         }
     }
 
-    return new CastInfo(ray,closestShape,closestHit);
+    return new CastInfo(ray, closestShape, closestHit);
 }
 
 /**
@@ -139,21 +130,21 @@ function castRay(ray) {
  * @returns {Vec3}
  */
 function Trace(ray) {
-    let rayColor = new Vec3(1,1,1);
-    let incomingLight = new Vec3(0,0,0);
-    let distance=0;
+    let rayColor = new Vec3(1, 1, 1);
+    let incomingLight = new Vec3(0, 0, 0);
+    let distance = 0;
 
-    let diffuseDir=new Vec3(0,0,0);
-    let specularDir=new Vec3(0,0,0);
+    let diffuseDir = new Vec3(0, 0, 0);
+    let specularDir = new Vec3(0, 0, 0);
 
-    for (let i=0;i<RAY_BOUNCE_LIMIT;i++) {
+    for (let i = 0; i < RAY_BOUNCE_LIMIT; i++) {
         let cast = castRay(ray);
 
         if (cast.hit.hasHit) {
-            distance+=cast.hit.distance;
-            let mat=cast.obj.mat;
+            distance += cast.hit.distance;
+            let mat = cast.obj.mat;
 
-            ray.origin=cast.hit.hitPoint;
+            ray.origin = cast.hit.hitPoint;
 
             // let diffuseDir = cast.hit.hitNormal.add(randomDirection());
             cast.hit.hitNormal.copyTo(diffuseDir);
@@ -165,32 +156,34 @@ function Trace(ray) {
 
             let isSpecularBounce = mat.specularProbability >= Math.random();
             // ray.dir = lerpVec(diffuseDir,specularDir, mat.smoothness * isSpecularBounce);
-            lerpVecCopy(ray.dir, diffuseDir,specularDir, mat.smoothness * isSpecularBounce);
-            ray.dir.normalizeS();
+            lerpVecCopy(ray.dir, diffuseDir, specularDir, mat.smoothness * isSpecularBounce);
+            // ray.dir.normalizeS();
 
             let emittedLight = mat.emissionColor.scale(mat.emissionStrength);
             incomingLight.addS(emittedLight.mul(rayColor));
-            
-            rayColor.mulS( lerpVec( mat.color(cast.hit), mat.specularColor, isSpecularBounce ));
+
+            rayColor.mulS(lerpVec(mat.color(cast.hit), mat.specularColor, isSpecularBounce));
+            // rayColor.addS(ray.dir);
 
             // Random early exit if ray colour is nearly 0 (can't contribute much to final result)
             let p = Math.max(rayColor.x, Math.max(rayColor.y, rayColor.z));
             if (Math.random() >= p) {
                 break;
             }
-            rayColor.scaleS(1/p);
+            rayColor.scaleS(1 / p);
         } else {
-            let emittedLight = getSkyColor(ray)
-            emittedLight.scaleS(skyMat.emissionStrength);
+            // ray.dir=randomDirection();
+            let emittedLight = scene.skyMat.color(ray);
+            emittedLight.scaleS(scene.skyMat.emissionStrength);
             emittedLight.mulS(rayColor);
             incomingLight.addS(emittedLight);
             // rayColor.mulS(skyMat.color(cast.hit));
-            break;
+            break;   
         }
     }
 
-    // return new Vec3(distance/100,0,0);
-    return incomingLight;
+    return new Vec3(distance/30,distance/30,distance/30);
+    // return incomingLight;
 }
 
 /**
@@ -199,12 +192,12 @@ function Trace(ray) {
  * @param {number} y
  * @returns {Vec3} Color 
  */
-function getPixelColor(x,y) {
+function getPixelColor(x, y) {
     let ray = new Ray(
         cam.transform.pos,
         cam.getPixelDir(
-            x+Math.random(),
-            y+Math.random()
+            x + Math.random(),
+            y + Math.random()
         )
     );
     let cast = castRay(ray);
