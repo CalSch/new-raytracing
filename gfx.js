@@ -182,8 +182,8 @@ function Trace(ray) {
         }
     }
 
-    return new Vec3(distance/30,distance/30,distance/30);
-    // return incomingLight;
+    // return new Vec3(distance/30,distance/30,distance/30);
+    return incomingLight;
 }
 
 /**
